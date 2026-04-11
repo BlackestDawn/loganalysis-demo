@@ -1,6 +1,9 @@
 package services
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/BlackestDawn/loganalysis-demo/go-api/internal/config"
 	"github.com/BlackestDawn/loganalysis-demo/go-api/internal/models"
 	"github.com/BlackestDawn/loganalysis-demo/go-api/internal/repository"
@@ -26,7 +29,15 @@ func (s *logService) FetchLogData() (data []models.LogData, err error) {
 }
 
 func NewLogdataService(conf *config.Config) *logService {
-	return &logService{
-		logRepo: repository.NewLogMemoryStorage(conf),
+	serv := new(logService)
+
+	repo, err := repository.NewLogPostgresStorage(conf)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Failed to connect to database: %s\nFalling back to memory storage", err)
+		serv.logRepo = repository.NewLogMemoryStorage(conf)
+	} else {
+		serv.logRepo = repo
 	}
+
+	return serv
 }
