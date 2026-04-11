@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 
 	"github.com/BlackestDawn/loganalysis-demo/go-api/internal/config"
+	"github.com/BlackestDawn/loganalysis-demo/go-api/internal/handlers"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
@@ -15,6 +16,11 @@ func main() {
 	conf := config.NewConfig()
 
 	router := gin.Default()
+
+	logHandlers := handlers.NewLogDataHandler(conf)
+
+	router.POST("/logs", logHandlers.WriteLogData)
+	router.GET("/logs", logHandlers.FetchLogData)
 
 	router.GET("/", func(ctx *gin.Context) {
 		ctx.JSON(200, gin.H{
