@@ -14,6 +14,7 @@ func main() {
 	godotenv.Load(findEnvFile())
 
 	conf := config.NewConfig()
+	defer conf.Cleanup()
 
 	router := gin.Default()
 
