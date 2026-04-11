@@ -4,11 +4,26 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/BlackestDawn/loganalysis-demo/go-api/internal/config"
+	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
 
 func main() {
 	godotenv.Load(findEnvFile())
+
+	conf := config.NewConfig()
+
+	router := gin.Default()
+
+	router.GET("/", func(ctx *gin.Context) {
+		ctx.JSON(200, gin.H{
+			"message": "Hello World",
+		})
+
+	})
+
+	router.Run(conf.ListenPort)
 }
 
 func findEnvFile() string {
