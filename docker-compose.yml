@@ -1,0 +1,27 @@
+# docker-compose.yml
+services:
+  rabbitmq:
+    image: rabbitmq:4-management
+    container_name: rabbitmq
+    hostname: rabbitmq-node
+    ports:
+      - "5672:5672"      # AMQP protocol port
+      - "15672:15672"    # Management UI port
+    volumes:
+      # Persist data across container restarts
+      - rabbitmq_data:/var/lib/rabbitmq
+      # Custom configuration file (optional)
+      - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+    env_file:
+      - .env
+    healthcheck:
+      # Check if RabbitMQ is responding
+      test: ["CMD", "rabbitmq-diagnostics", "check_running"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  rabbitmq_data:
+    driver: local
