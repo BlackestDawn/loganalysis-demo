@@ -6,6 +6,7 @@ import (
 
 	"github.com/BlackestDawn/loganalysis-demo/go-api/internal/config"
 	"github.com/BlackestDawn/loganalysis-demo/go-api/internal/models"
+	"github.com/BlackestDawn/loganalysis-demo/go-api/internal/queue"
 	"github.com/BlackestDawn/loganalysis-demo/go-api/internal/repository"
 )
 
@@ -16,10 +17,16 @@ type LogDataServices interface {
 
 type logService struct {
 	logRepo repository.LogRepository
+	queue   queue.LogsQueue
 }
 
 func (s *logService) WriteLogData(data models.LogData) (err error) {
 	err = s.logRepo.StoreLogData(data)
+	if err != nil {
+		return
+	}
+
+	err = s.queue.PublishJSON("", data)
 	return
 }
 
@@ -38,6 +45,8 @@ func NewLogdataService(conf *config.Config) *logService {
 	} else {
 		serv.logRepo = repo
 	}
+
+	serv.queue = queue.NewQueue(conf)
 
 	return serv
 }
