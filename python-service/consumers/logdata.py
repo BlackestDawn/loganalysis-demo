@@ -1,5 +1,6 @@
 import json
 import pika
+import datetime
 from services.log_analysis import LogAnalyser
 from models.logdata import log_data
 
@@ -8,7 +9,13 @@ def callback():
     analyzer: LogAnalyser = LogAnalyser()
 
     def process(ch, method, properties, body):
-        data: log_data = log_data(**json.loads(body))
+        decoded: dict = json.loads(body)
+        data: log_data = log_data(
+            timestamp=datetime.datetime.strptime(decoded["timestamp"], "%Y-%m-%dT%H:%M:%SZ"),
+            level=decoded["level"],
+            message=decoded["message"],
+            service=decoded["service"]
+        )
         analyzer.add_logdata(data)
     return process
 
