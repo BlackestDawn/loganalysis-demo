@@ -1,14 +1,20 @@
 import json
 import pika
+from models.logdata import LogAnalyser, log_data
 
 
-def callback(ch, method, properties, body):
-    data = json.loads(body)
-    print(data)
+def callback():
+    analyzer: LogAnalyser = LogAnalyser()
+
+    def process(ch, method, properties, body):
+        data: log_data = log_data(**json.loads(body))
+        analyzer.add_logdata(data)
+        # print("Added: ", data)
+    return process
 
 
 def start_consumer(conf):
-    print("connecting to:", conf.queue.conn.host + ":" + str(conf.queue.conn.port))
+    print("connecting to: ", conf.queue.conn.host + ":" + str(conf.queue.conn.port))
     connection = pika.BlockingConnection(pika.ConnectionParameters(
         host=conf.queue.conn.host,
         port=conf.queue.conn.port,
@@ -20,7 +26,7 @@ def start_consumer(conf):
     channel.queue_declare(queue=conf.queue.queue)
     channel.queue_bind(exchange=conf.queue.exchange, queue=conf.queue.queue)
 
-    channel.basic_consume(queue=conf.queue.queue, on_message_callback=callback, auto_ack=True)
+    channel.basic_consume(queue=conf.queue.queue, on_message_callback=callback(), auto_ack=True)
 
     print(' [*] Waiting for logs. To exit press CTRL+C')
     channel.start_consuming()
