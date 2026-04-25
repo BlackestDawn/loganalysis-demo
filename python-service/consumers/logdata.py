@@ -1,6 +1,7 @@
 import json
 import pika
-from models.logdata import LogAnalyser, log_data
+from services.log_analysis import LogAnalyser
+from models.logdata import log_data
 
 
 def callback():
@@ -9,7 +10,6 @@ def callback():
     def process(ch, method, properties, body):
         data: log_data = log_data(**json.loads(body))
         analyzer.add_logdata(data)
-        # print("Added: ", data)
     return process
 
 
