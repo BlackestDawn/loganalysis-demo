@@ -35,7 +35,6 @@ class LogAnalyser:
         )
 
         self.check_counts(key)
-        print("DEBUG:: added:", data)
 
     def check_timespan_count(self, key: str, delta: datetime.timedelta = datetime.timedelta(minutes=1)) -> int:
         cutoff: datetime.datetime = self.latest - delta
