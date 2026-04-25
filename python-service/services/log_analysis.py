@@ -13,6 +13,8 @@ class LogAnalyser:
         self.long_check = datetime.timedelta(minutes=5)
 
     def add_logdata(self, data: log_data) -> None:
+        if data.level.lower() not in ["error", "err"]:
+            return
         key: str = data.service + "--" + data.level
         if key not in self.queues.keys():
             self.queues[key] = list()
